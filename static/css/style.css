@@ -1,0 +1,620 @@
+/* ─── Google Fonts ────────────────────────────────────────── */
+.font-pacifico  { font-family: 'Pacifico', cursive; }
+.font-quicksand { font-family: 'Quicksand', sans-serif; }
+* { font-family: 'Quicksand', sans-serif; box-sizing: border-box; }
+
+/* ─── Body / Background ────────────────────────────────────── */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: radial-gradient(ellipse at top, #4a0520 0%, #1a0010 100%);
+}
+
+/* ─── Reset Button ──────────────────────────────────────────── */
+.btn-reset-corner {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.75rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(244,63,94,0.25);
+  border-radius: 20px;
+  color: #f87171;
+  font-size: 0.72rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  min-height: 36px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  line-height: 1;
+}
+.btn-reset-corner:hover {
+  background: rgba(244,63,94,0.15);
+  border-color: rgba(244,63,94,0.5);
+  color: #fda4af;
+}
+
+
+/* ─── Map Container ──────────────────────────────────────────── */
+:root {
+  /* Dynamically scale map down if screen is too short vertically (e.g. laptops).
+     Subtracting ~260px for header/footer text heights. */
+  --avail-h: calc(100vh - 260px);
+  --avail-w: calc(var(--avail-h) * 1.6666);
+  --map-orig-w: min(700px, max(360px, var(--avail-w)));
+  --map-orig-h: calc(var(--map-orig-w) * 0.6);
+}
+
+.map-container {
+  max-width: min(calc(100vw - 2rem), var(--map-orig-w));
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 3px #be185d,
+    0 0 40px rgba(244, 63, 94, 0.35),
+    0 20px 60px rgba(0,0,0,0.6);
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
+}
+.map-container::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+.map-wrapper {
+  position: relative;
+  width: var(--map-orig-w);
+  height: var(--map-orig-h);
+  background: #3a0018; /* fallback behind map */
+}
+
+.map-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  touch-action: pan-x pan-y;
+  image-rendering: pixelated;
+}
+
+/* ─── Hub Tooltip ──────────────────────────────────────────── */
+.hub-tooltip {
+  position: absolute;
+  background: rgba(10, 0, 15, 0.9);
+  border: 1px solid #be185d;
+  color: #fdd;
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translate(-50%, -110%);
+  transition: opacity 0.2s;
+  backdrop-filter: blur(8px);
+}
+
+/* ─── Modal Overlays ───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.2s ease;
+  padding: 1rem;          /* prevents card from touching screen edge */
+}
+
+.modal-overlay.hidden { display: none; }
+
+.modal-card {
+  background: 
+    radial-gradient(ellipse at 60% 30%, rgba(244,63,94,0.06) 0%, transparent 60%),
+    linear-gradient(145deg, #1f0015, #2d001f);
+  border: 1px solid rgba(244,63,94,0.4);
+  border-radius: 24px;
+  padding: clamp(1.2rem, 4vw, 2rem);  /* tighter on phones */
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 60px rgba(244,63,94,0.15);
+  animation: scaleIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+  overflow: hidden;
+  max-height: calc(100dvh - 2rem); /* never taller than the viewport */
+  overflow-y: auto;
+  width: 100%;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.modal-title {
+  font-family: 'Pacifico', cursive;
+  font-size: 1.5rem;
+  color: #fda4af;
+  text-align: center;
+}
+
+/* ─── Quiz Input ──────────────────────────────────────────── */
+.quiz-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(244,63,94,0.4);
+  border-radius: 12px;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: 'Quicksand', sans-serif;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: block;
+}
+
+.quiz-input:focus {
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 3px rgba(244,63,94,0.2);
+}
+
+/* shake animation on wrong answer */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+.shake { animation: shake 0.4s ease; }
+
+/* ─── Buttons ─────────────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7rem 1.4rem;
+  min-height: 44px;       /* iOS touch target */
+  font-size: 1rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(244,63,94,0.4);
+}
+.btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(244,63,94,0.5); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: rgba(255,255,255,0.07);
+  color: #fda4af;
+  border: 1px solid rgba(244,63,94,0.3);
+  border-radius: 12px;
+  padding: 0.7rem 1.4rem;
+  min-height: 44px;       /* iOS touch target */
+  font-size: 1rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+/* ─── Memory Photo ────────────────────────────────────────── */
+.memory-photo-wrapper {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 1rem 0;
+  box-shadow: 0 8px 30px rgba(244,63,94,0.3);
+}
+
+.memory-photo {
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  display: block;
+  animation: photoReveal 0.6s ease;
+}
+
+.photo-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+@keyframes photoReveal {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.memory-note {
+  color: #fecdd3;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.7;
+  font-style: italic;
+  padding: 0 0.5rem;
+  white-space: pre-line;
+}
+
+/* ─── Surprise Screen ─────────────────────────────────────── */
+.surprise-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #1a0010, #3d001e, #1a0010);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;       /* scroll on very short screens */
+  animation: fadeIn 0.5s ease;
+}
+.surprise-overlay.hidden { display: none; }
+
+.confetti-canvas {
+  position: fixed;        /* fixed so it fills screen behind scroll */
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.surprise-content {
+  position: relative;
+  text-align: center;
+  padding: clamp(1rem, 4vw, 2rem);
+  z-index: 1;
+  max-width: 500px;
+  width: 100%;
+}
+
+.cake-wrapper {
+  font-size: clamp(4rem, 18vw, 7rem);  /* scales down on phones */
+  line-height: 1;
+  animation: cakeBounce 1s cubic-bezier(0.34,1.56,0.64,1) forwards, cakePulse 2s 1s ease-in-out infinite;
+  display: block;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 30px rgba(255,200,100,0.6));
+}
+
+.surprise-title {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  color: #fda4af;
+  text-shadow: 0 0 40px rgba(244,63,94,0.6);
+  margin-bottom: 1rem;
+  animation: slideUp 0.7s 0.3s ease both;
+}
+
+.surprise-message {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: #fecdd3;
+  line-height: 1.8;
+  white-space: pre-line;
+  animation: slideUp 0.7s 0.5s ease both;
+}
+
+.heart-parade {
+  font-size: 2rem;
+  letter-spacing: 0.5rem;
+  margin-top: 1.5rem;
+  animation: slideUp 0.7s 0.7s ease both, heartPulse 2s 1.2s ease-in-out infinite;
+}
+
+/* ─── Keyframes ───────────────────────────────────────────── */
+@keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
+@keyframes scaleIn   { from { opacity:0; transform:scale(0.85) } to { opacity:1; transform:scale(1) } }
+@keyframes slideUp   { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
+@keyframes cakeBounce {
+  0%   { opacity:0; transform: scale(0.3) translateY(60px); }
+  100% { opacity:1; transform: scale(1) translateY(0); }
+}
+@keyframes cakePulse  { 0%,100% { transform:scale(1) } 50% { transform:scale(1.06) } }
+@keyframes heartPulse { 0%,100% { transform:scale(1) } 50% { transform:scale(1.1) } }
+
+/* hub pulse ring */
+@keyframes hubPulse {
+  0%   { transform: scale(1); opacity: 0.8; }
+  50%  { transform: scale(1.25); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* ─── Error Screen ─────────────────────────────────────────── */
+.error-overlay {
+  position: fixed;
+  inset: 0;
+  background: #0a000a;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.4s ease;
+  overflow: hidden;
+}
+.error-overlay.hidden { display: none; }
+
+/* CRT scanlines */
+.error-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.18) 3px,
+    rgba(0,0,0,0.18) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* The "window" dialog */
+.error-window {
+  position: relative;
+  z-index: 2;
+  background: #111318;
+  border: 1px solid #ff3c3c55;
+  border-radius: 14px;
+  width: min(92vw, 560px);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  box-shadow:
+    0 0 0 1px rgba(255,60,60,0.2),
+    0 0 60px rgba(255,30,30,0.25),
+    0 30px 80px rgba(0,0,0,0.8);
+  animation: scaleIn 0.35s cubic-bezier(0.34,1.3,0.64,1);
+}
+
+/* macOS-style title bar */
+.error-titlebar {
+  background: linear-gradient(90deg, #1e0000, #200010);
+  padding: 0.65rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255,60,60,0.25);
+}
+.error-titlebar-dots { display: flex; gap: 6px; }
+.dot {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+}
+.dot-red    { background: #ff5f57; box-shadow: 0 0 6px #ff5f5788; }
+.dot-yellow { background: #febc2e; box-shadow: 0 0 6px #febc2e88; }
+.dot-green  { background: #28c840; box-shadow: 0 0 6px #28c84088; }
+.error-titlebar-text {
+  color: #ff6b6b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-family: 'Quicksand', monospace;
+}
+
+/* Body */
+.error-body { padding: 1.5rem; }
+
+.error-icon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.error-icon { font-size: 3rem; line-height: 1; flex-shrink: 0; }
+.error-code {
+  font-size: 0.72rem;
+  color: #ff6b6b99;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+.error-blink {
+  color: #ff4444;
+  animation: blinkText 1s step-end infinite;
+}
+@keyframes blinkText { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+.error-heading {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ff6b6b;
+  letter-spacing: 0.03em;
+}
+
+.error-details {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,60,60,0.18);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+  color: #ccc;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.error-traceback {
+  background: #000;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: #88ff88;
+  line-height: 1.7;
+  overflow-x: auto;    /* scroll long lines on narrow phones */
+  white-space: pre;   /* keep monospace alignment */
+}
+.err-path      { color: #ffaa44; }
+.err-highlight { color: #ff6b6b; font-weight: bold; }
+.error-sub {
+  color: #aaa;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Buttons */
+.error-btn-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.btn-error-primary {
+  background: linear-gradient(135deg, #cc0000, #880000);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 1.3rem;
+  min-height: 44px;    /* touch target */
+  font-size: 0.95rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(200,0,0,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+  flex: 1;
+}
+.btn-error-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(200,0,0,0.55); }
+
+.btn-error-secondary {
+  background: rgba(255,255,255,0.06);
+  color: #ff9999;
+  border: 1px solid rgba(255,60,60,0.3);
+  border-radius: 10px;
+  padding: 0.65rem 1.3rem;
+  min-height: 44px;    /* touch target */
+  font-size: 0.95rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex: 1;
+}
+.btn-error-secondary:hover { background: rgba(255,255,255,0.1); }
+
+.error-bug-report-row { text-align: center; }
+.btn-error-ghost {
+  background: none;
+  border: none;
+  color: #ff606066;
+  font-size: 0.78rem;
+  font-family: 'Quicksand', sans-serif;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: underline dashed;
+  text-underline-offset: 3px;
+}
+.btn-error-ghost:hover { color: #ff9999; }
+
+/* ─── Scan Popup ───────────────────────────────────────────── */
+.error-scan-popup {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+.error-scan-popup.hidden { display: none; }
+
+.scan-popup-inner {
+  background: #0d1117;
+  border: 1px solid rgba(255,60,60,0.3);
+  border-radius: 14px;
+  padding: 2rem;
+  width: min(85vw, 340px);
+  text-align: center;
+  box-shadow: 0 0 40px rgba(255,60,60,0.2);
+  animation: scaleIn 0.3s cubic-bezier(0.34,1.4,0.64,1);
+}
+
+.scan-anim { padding: 1.5rem 0; }
+.scan-bar {
+  height: 6px;
+  background: linear-gradient(90deg, #cc0000, #ff4444, #cc0000);
+  background-size: 200% 100%;
+  border-radius: 3px;
+  animation: scanSlide 1.2s linear infinite;
+  margin-bottom: 1rem;
+}
+@keyframes scanSlide {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.scan-label { color: #ff6b6b; font-size: 0.85rem; letter-spacing: 0.1em; }
+
+.scan-result.hidden { display: none; }
+.scan-result-icon  { font-size: 3.5rem; margin-bottom: 0.5rem; }
+.scan-result-title { color: #4ade80; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.scan-result-msg   { color: #ccc; font-size: 0.95rem; line-height: 1.6; }
+.scan-result-msg strong { color: #f9a8d4; }
+
+/* ─── Bug Report Toast ─────────────────────────────────────── */
+.error-bug-toast {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  border: 1px solid rgba(255,60,60,0.35);
+  color: #fda4af;
+  font-size: 0.82rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  white-space: nowrap;
+  max-width: 90vw;
+  text-align: center;
+  z-index: 20;
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.error-bug-toast.hidden { display: none; }
+
+/* ─── Responsive / Mobile Fixes ──────────────────────────────── */
+
+/* Phones ≤ 480px */
+@media (max-width: 480px) {
+  /* Header: give more vertical space so reset btn doesn't crowd title */
+  header { padding-top: 3rem; padding-bottom: 1.5rem; }
+
+  /* Error screen: stack buttons vertically */
+  .error-btn-row { flex-direction: column; }
+  .btn-error-primary,
+  .btn-error-secondary { flex: unset; width: 100%; }
+
+  /* Shrink error heading on tiny screens */
+  .error-heading { font-size: 1rem; }
+
+  /* Heart parade: smaller emoji row */
+  .heart-parade { font-size: 1.4rem; letter-spacing: 0.3rem; }
+
+  /* Modal side padding already handled by modal-overlay padding:1rem */
+  /* Ensure quiz input is large enough to tap */
+  .quiz-input { font-size: 1rem; padding: 0.85rem 1rem; }
+
+  /* Scan popup: tighter inside */
+  .scan-popup-inner { padding: 1.3rem; }
+}
+
+/* Landscape phones — shrink map so the whole page fits */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root {
+    --map-orig-w: 500px;
+    --map-orig-h: 300px;
+  }
+  header { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  h1 { font-size: 1.6rem !important; }
+}

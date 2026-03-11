@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💖 Our Journey Map</title>
+  <meta name="description" content="A special interactive journey map created with love for your birthday." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Pacifico&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="static/css/style.css" />
+</head>
+
+<body class="bg-rose-950 flex flex-col items-center justify-start">
+
+  <!-- ─── HEADER ──────────────────────────────────────────────────── -->
+  <header class="w-full text-center py-6 z-10 relative">
+    <h1 class="font-pacifico text-4xl md:text-5xl text-rose-200 drop-shadow-lg">
+      💖 Our Journey Map
+    </h1>
+    <p class="text-rose-300 mt-1 text-sm tracking-widest uppercase font-quicksand">
+      Five memories · One love story
+    </p>
+    <!-- progress bar -->
+    <div class="mt-4 mx-auto w-64 h-3 bg-rose-900 rounded-full overflow-hidden border border-rose-700">
+      <div id="progress-bar"
+        class="h-full bg-gradient-to-r from-pink-400 to-rose-400 rounded-full transition-all duration-700"
+        style="width:0%"></div>
+    </div>
+    <p id="progress-text" class="text-rose-400 text-xs mt-1 font-quicksand">0 / 5 memories unlocked</p>
+    <!-- Reset button -->
+    <button id="reset-btn" title="Reset game" class="btn-reset-corner">🔄 Reset</button>
+  </header>
+
+  <!-- ─── RESET CONFIRM MODAL ──────────────────────────────────────── -->
+  <div id="reset-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card max-w-xs w-full mx-4 text-center">
+      <p class="text-3xl mb-3">🔄</p>
+      <h2 class="modal-title mb-2">Reset the Journey?</h2>
+      <p class="text-rose-300/70 text-sm mb-6 font-quicksand">This will unlock all hubs and start fresh from the
+        beginning.</p>
+      <div class="flex gap-3">
+        <button id="reset-cancel-btn" class="btn-secondary flex-1">Cancel</button>
+        <button id="reset-confirm-btn" class="btn-primary flex-1">Yes, Reset 🔄</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MAP CANVAS ───────────────────────────────────────────────── -->
+  <div class="map-container mx-auto mt-2">
+    <div class="map-wrapper relative">
+      <canvas id="map" class="map-canvas"></canvas>
+      <!-- hub tooltip -->
+      <div id="hub-tooltip" class="hub-tooltip hidden"></div>
+    </div>
+  </div>
+
+  <p class="text-rose-500/60 text-xs mt-3 font-quicksand mb-8">Click a memory hub to begin 💌</p>
+
+  <!-- ─── QUIZ MODAL ────────────────────────────────────────────────── -->
+  <div id="quiz-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div id="quiz-modal" class="modal-card max-w-md w-full mx-4">
+      <div class="modal-header">
+        <span id="quiz-hub-emoji" class="text-3xl">❓</span>
+        <h2 id="quiz-hub-name" class="modal-title">Memory Hub</h2>
+      </div>
+      <p class="text-rose-300/80 text-sm mb-5 text-center font-quicksand italic">Answer correctly to unlock this memory
+        🔑</p>
+      <p id="quiz-question" class="text-rose-100 text-center font-semibold mb-5 leading-relaxed"></p>
+      <input id="quiz-answer" type="text" placeholder="Your answer…" class="quiz-input" autocomplete="off" />
+      <p id="quiz-feedback" class="text-center text-sm mt-2 min-h-5 transition-all font-quicksand"></p>
+      <div class="flex gap-3 mt-5">
+        <button id="quiz-cancel-btn" class="btn-secondary flex-1">Cancel</button>
+        <button id="quiz-submit-btn" class="btn-primary flex-1">Submit ❤️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MEMORY MODAL ──────────────────────────────────────────────── -->
+  <div id="memory-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div id="memory-modal" class="modal-card max-w-lg w-full mx-4">
+      <div class="modal-header">
+        <span id="memory-hub-emoji" class="text-3xl">💖</span>
+        <h2 id="memory-hub-name" class="modal-title">Memory Unlocked!</h2>
+      </div>
+      <div class="memory-photo-wrapper">
+        <img id="memory-photo" src="" alt="Memory Photo" class="memory-photo"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22260%22><rect width=%22400%22 height=%22260%22 fill=%22%23881337%22 rx=%2212%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2260%22>📷</text></svg>'" />
+        <div class="photo-shine"></div>
+      </div>
+      <p id="memory-note" class="memory-note"></p>
+      <button id="memory-close-btn" class="btn-primary w-full mt-6">Close 💌</button>
+    </div>
+  </div>
+
+  <!-- ─── ERROR SCREEN ─────────────────────────────────────────────── -->
+  <div id="error-overlay" class="error-overlay hidden" role="dialog" aria-modal="true">
+    <!-- scanline effect -->
+    <div class="error-scanlines" aria-hidden="true"></div>
+
+    <div class="error-window">
+      <!-- Title bar -->
+      <div class="error-titlebar">
+        <div class="error-titlebar-dots">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <span class="error-titlebar-text">System Error — Critical</span>
+      </div>
+
+      <!-- Body -->
+      <div class="error-body">
+        <div class="error-icon-row">
+          <span class="error-icon">⚠️</span>
+          <div>
+            <p class="error-code">ERROR_CODE: <span class="error-blink">0x0000L0VE</span></p>
+            <h2 class="error-heading">CRITICAL ERROR DETECTED</h2>
+          </div>
+        </div>
+
+        <div class="error-details">
+          <p>The system has encountered an unexpected exception:</p>
+          <div class="error-traceback">
+            <span class="err-path">heart.exe</span> encountered a fatal condition<br />
+            &gt; overflow detected in <span class="err-highlight">feelings_module</span><br />
+            &gt; memory leak: <span class="err-highlight">too_many_memories</span> stored<br />
+            &gt; stack trace: <span class="err-path">love → trust → forever</span><br />
+            &gt; DUMP: <span class="err-highlight">HAPPINESS_OVERLOAD</span> at 0xFF
+          </div>
+          <p class="error-sub">This error is <em>not</em> harmful. Your heart just ran out of space for sadness.</p>
+        </div>
+
+        <div class="error-btn-row">
+          <button id="error-scan-btn" class="btn-error-primary">
+            🔍 Scan Error
+          </button>
+          <button id="error-ignore-btn" class="btn-error-secondary hidden">
+            Ignore (not recommended)
+          </button>
+        </div>
+
+        <!-- Bug report button -->
+        <div class="error-bug-report-row">
+          <button id="error-bug-btn" class="btn-error-ghost hidden">🐛 Submit Bug Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan Result Popup -->
+    <div id="error-scan-popup" class="error-scan-popup hidden">
+      <div class="scan-popup-inner">
+        <div class="scan-anim">
+          <div class="scan-bar"></div>
+          <p class="scan-label">Scanning…</p>
+        </div>
+        <div id="scan-result" class="scan-result hidden">
+          <p class="scan-result-icon">💖</p>
+          <p class="scan-result-title">Scan Complete</p>
+          <p class="scan-result-msg">No bugs found.<br /><strong>100% Love detected.</strong></p>
+          <button id="scan-ok-btn" class="btn-primary mt-4 px-8">Continue 💌</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bug Report Toast -->
+    <div id="error-bug-toast" class="error-bug-toast hidden">
+      🐛 Bug report submitted. Response: <strong>"No bugs found, only 100% Love detected."</strong>
+    </div>
+  </div>
+
+  <!-- ─── SURPRISE SCREEN ───────────────────────────────────────────── -->
+  <div id="surprise-overlay" class="surprise-overlay hidden" role="dialog" aria-modal="true">
+    <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+    <div class="surprise-content">
+      <div class="cake-wrapper" aria-hidden="true">🎂</div>
+      <h2 id="surprise-title" class="surprise-title font-pacifico"></h2>
+      <p id="surprise-message" class="surprise-message font-quicksand"></p>
+      <div class="heart-parade" aria-hidden="true">💖 💕 💗 💓 💞 💝</div>
+      <button id="surprise-replay-btn" class="btn-primary mt-8 px-10">
+        Replay the Journey 🗺️
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── SCRIPTS ───────────────────────────────────────────────────── -->
+  <script src="data.js"></script>
+  <script src="static/js/map.js"></script>
+  <script src="static/js/quiz-modal.js"></script>
+  <script src="static/js/memory-modal.js"></script>
+  <script src="static/js/error-screen.js"></script>
+  <script src="static/js/surprise.js"></script>
+  <script src="static/js/game.js"></script>
+</body>
+
+</html>
