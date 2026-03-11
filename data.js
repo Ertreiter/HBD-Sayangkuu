@@ -1,7 +1,7 @@
 
 const CONFIG = {
   herName: "My Love",   // ← Replace with her actual name
-  surpriseMessage: "Happy Birthday! 🎂\nI love you to the moon and back 🌙",
+  surpriseMessage: "Happy Birthday! 🎂\nI love you Sayangkuu 🌹",
 };
 
 const HUBS = [
